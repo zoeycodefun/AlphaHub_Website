@@ -7,5 +7,24 @@ import { X, Plus, Link, Settings, Trash2} from 'lucide-react'
 // 类型定义
 interface Exchange {
     id: string;
-    
+    name: string;
+    type: 'CEX' | 'DEX' | 'OTHER';
+    isConnected: boolean;
 }
+interface Account {
+    id: string;
+    exchangeId: string;
+    accountName: string;
+    accountAPIKey?: string;
+    accountSecretKey?: string;
+    accountWalletAddress?: string;
+    accountCreatedAt: Date;
+    accountLastCreatedAt: Date;
+
+}
+type AccountType = 'CEX' | 'DEX' | 'OTHER';
+type ModalType = 'connect' | 'add' | 'manage' | null;
+
+// 用户账户管理弹窗
+
+
