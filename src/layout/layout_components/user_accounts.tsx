@@ -23,8 +23,13 @@ interface Account {
 
 }
 type AccountType = 'CEX' | 'DEX' | 'OTHER';
-type ModalType = 'connect' | 'add' | 'manage' | null;
+type OperateType = 'connect' | 'add' | 'manage' | null;
 
-// 用户账户管理弹窗
-
+// 用户账户管理弹窗（去中心化交易所，中心化交易所，其他）
+const UserAccountsManagement: React.FC<{ isOpen: boolean; onClose: () => void; }> =({
+    isOpen,
+    onClose,
+}) => {
+    
+}
 
