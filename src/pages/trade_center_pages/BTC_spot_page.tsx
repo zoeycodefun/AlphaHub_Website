@@ -4,6 +4,9 @@ import React from 'react';
 
 const TradeCenter:React.FC = () => {
     return (
+        <div>
+            
+        </div>
 
     )
 }
