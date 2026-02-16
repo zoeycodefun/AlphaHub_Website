@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { ChevronDown, Settings, Clock, TrendingUp } from 'lucide-react';
 import {
     type Exchange,
-    NavigationItem,
-    TimeZone,
-    TradeCenterNavigationProps,
+    type NavigationItem,
+    type TimeZone,
+    type TradeCenterNavigationProps,
     TIMEZONE_CONFIG,
     getCurrentTimeInTimeZone,
     MAX_EXCHANGE_MENU_HEIGHT,
@@ -12,7 +12,7 @@ import {
     NAVIGATION_HEIGHT
 } from '../page_type/trade_center_navigation_type';
 
-// 防抖钩子
+// debounce hook
 const useDebounce = (value: string, delay: number): string => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -24,52 +24,53 @@ const useDebounce = (value: string, delay: number): string => {
     return debouncedValue;
 };
 
-// 桌面端交易所下拉组件
-const ExchangeDropdown: React.FC<{
+// desktop exchange dropdown menu component
+const ExchangeDropdownMenu: React.FC<{
     currentExchange: Exchange | null;
     exchanges: readonly Exchange[];
     onExchangeChange: (exchange: Exchange) => void;
 }> = ({ currentExchange, exchanges, onExchangeChange }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [isOpenExchangeDropdownMenu, setIsOpenExchangeDropdownMenu] = useState(false);
+    const exchangeDropdownRef = useRef<HTMLDivElement>(null);
 
-    // 点击外部关闭下拉菜单
+    // click outside to close exchange dropdown menu 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
+            if (exchangeDropdownRef.current && !exchangeDropdownRef.current.contains(event.target as Node)) {
+                setIsOpenExchangeDropdownMenu(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // 键盘导航
+    // keyboard navigation
     const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-        if (event.key === 'Escape') setIsOpen(false);
+        if (event.key === 'Escape') setIsOpenExchangeDropdownMenu(false);
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            setIsOpen(!isOpen);
+            setIsOpenExchangeDropdownMenu(!isOpenExchangeDropdownMenu);
         }
-    }, [isOpen]);
+    }, [isOpenExchangeDropdownMenu]);
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative" ref={exchangeDropdownRef}>
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsOpenExchangeDropdownMenu(!isOpenExchangeDropdownMenu)}
                 onKeyDown={handleKeyDown}
                 className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors min-w-[120px] text-left"
-                aria-expanded={isOpen}
+                aria-expanded={isOpenExchangeDropdownMenu}
                 aria-haspopup="listbox"
             >
+            {/**❌ check if the exchange name changes after selecting an exchange from the dropdown menu  */}
                 <TrendingUp className="w-4 h-4 text-blue-400" />
                 <span className="text-sm font-medium text-gray-900 truncate">
                     {currentExchange?.name || '选择交易所'}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpenExchangeDropdownMenu ? 'rotate-180' : ''}`} />
             </button>
-
-            {isOpen && (
+            {/** ❌ there should be two changes when opening the exchange dropdown menu: the selected exchange should change, and the dropdown menu should also be selected */}
+            {isOpenExchangeDropdownMenu && (
                 <div
                     className="absolute top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
                     style={{ maxHeight: MAX_EXCHANGE_MENU_HEIGHT }}
@@ -79,11 +80,12 @@ const ExchangeDropdown: React.FC<{
                         <button
                             key={exchange.id}
                             onClick={() => {
+                                // ❌not only should the selected exchange change, but the dropdown menu should also be selected
                                 onExchangeChange(exchange);
-                                setIsOpen(false);
+                                setIsOpenExchangeDropdownMenu(false);
                             }}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between ${
-                                currentExchange?.id === exchange.id ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' : 'text-gray-700'
+                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between 
+                                ${currentExchange?.id === exchange.id ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' : 'text-gray-700'
                             }`}
                             role="option"
                             aria-selected={currentExchange?.id === exchange.id}
@@ -92,6 +94,7 @@ const ExchangeDropdown: React.FC<{
                                 <span className="text-sm font-medium">{exchange.name}</span>
                                 {exchange.isActive && <div className="w-2 h-2 bg-green-400 rounded-full"></div>}
                             </div>
+                            {/** ❌ balance format function */}
                             <div className="text-xs text-gray-500">
                                 可用: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
                             </div>
@@ -103,16 +106,17 @@ const ExchangeDropdown: React.FC<{
     );
 };
 
-// 桌面端时区显示组件
+// desktop timezone display component
+// ❌ display the current time in the selected timezone, and update it every second
 const TimeZoneDisplay: React.FC<{
     currentTimeZone: TimeZone;
     onTimeZoneChange: (timezone: TimeZone) => void;
 }> = ({ currentTimeZone, onTimeZoneChange }) => {
     const [currentTime, setCurrentTime] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
+    const [isOpenTimeZoneMenu, setIsOpenTimeZoneMenu] = useState(false);
+    const timezoneDropdownRef = useRef<HTMLDivElement>(null);
 
-    // 实时更新时间
+    // update current time every second based on the selected timezone
     useEffect(() => {
         const updateTime = () => setCurrentTime(getCurrentTimeInTimeZone(currentTimeZone));
         updateTime();
@@ -120,25 +124,25 @@ const TimeZoneDisplay: React.FC<{
         return () => clearInterval(interval);
     }, [currentTimeZone]);
 
-    // 点击外部关闭
+    // handle click outside to close timezone dropdown menu
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
+            if (timezoneDropdownRef.current && !timezoneDropdownRef.current.contains(event.target as Node)) {
+                setIsOpenTimeZoneMenu(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const currentConfig = TIMEZONE_CONFIG.find(tz => tz.id === currentTimeZone);
+    const currentConfig = TIMEZONE_CONFIG.find(timezone => timezone.id === currentTimeZone);
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative" ref={timezoneDropdownRef}>
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsOpenTimeZoneMenu(!isOpenTimeZoneMenu)}
                 className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-expanded={isOpen}
+                aria-expanded={isOpenTimeZoneMenu}
                 aria-haspopup="listbox"
             >
                 <Clock className="w-4 h-4 text-green-400" />
@@ -146,10 +150,11 @@ const TimeZoneDisplay: React.FC<{
                     <div className="text-xs text-gray-500">{currentConfig?.country}</div>
                     <div className="text-sm font-medium text-gray-900">{currentTime}</div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 
+                    ${isOpenTimeZoneMenu ? 'rotate-180' : ''}`} />
             </button>
-
-            {isOpen && (
+            {/** ❌ when open timezone menu, ensure it can be scrolled and show the time of specific timezone when choose */}
+            {isOpenTimeZoneMenu && (
                 <div
                     className="absolute top-full mt-1 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
                     role="listbox"
@@ -159,10 +164,10 @@ const TimeZoneDisplay: React.FC<{
                             key={timezone.id}
                             onClick={() => {
                                 onTimeZoneChange(timezone.id);
-                                setIsOpen(false);
+                                setIsOpenTimeZoneMenu(false);
                             }}
-                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors duration-150 ${
-                                currentTimeZone === timezone.id ? 'bg-blue-100 text-blue-700' : 'text-gray-700'
+                            className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors duration-150 
+                                ${currentTimeZone === timezone.id ? 'bg-blue-100 text-blue-700' : 'text-gray-700'
                             }`}
                             role="option"
                             aria-selected={currentTimeZone === timezone.id}
@@ -184,7 +189,7 @@ const TimeZoneDisplay: React.FC<{
     );
 };
 
-// 页面导航组件
+// page navigation component
 const PageNavigation: React.FC<{
     currentPage: string;
     onPageChange: (pageId: string) => void;
@@ -207,8 +212,8 @@ const PageNavigation: React.FC<{
                 <button
                     key={item.id}
                     onClick={() => onPageChange(item.id)}
-                    className={`px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap text-sm font-medium ${
-                        item.isActive
+                    className={`px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap text-sm font-medium 
+                        ${item.isActive
                             ? 'bg-blue-100 text-blue-700 border border-blue-200'
                             : item.isComingSoon
                             ? 'text-gray-400 cursor-not-allowed'
@@ -228,7 +233,7 @@ const PageNavigation: React.FC<{
     );
 };
 
-// 移动端设置菜单组件
+// ❌ mobile settings menu component--just have one icon
 const MobileSettingsMenu: React.FC<{
     currentExchange: Exchange | null;
     exchanges: readonly Exchange[];
@@ -236,11 +241,11 @@ const MobileSettingsMenu: React.FC<{
     onExchangeChange: (exchange: Exchange) => void;
     onTimeZoneChange: (timezone: TimeZone) => void;
 }> = ({ currentExchange, exchanges, currentTimeZone, onExchangeChange, onTimeZoneChange }) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpenMobileSettingsMenu, setIsOpenMobileSettingsMenu] = useState(false);
     const [currentTime, setCurrentTime] = useState('');
-    const menuRef = useRef<HTMLDivElement>(null);
+    const timezoneMenuRef = useRef<HTMLDivElement>(null);
 
-    // 实时更新时间
+    // update current time every second based on the selected timezone
     useEffect(() => {
         const updateTime = () => setCurrentTime(getCurrentTimeInTimeZone(currentTimeZone));
         updateTime();
@@ -248,36 +253,38 @@ const MobileSettingsMenu: React.FC<{
         return () => clearInterval(interval);
     }, [currentTimeZone]);
 
-    // 点击外部关闭
+    // close when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
+            if (timezoneMenuRef.current && !timezoneMenuRef.current.contains(event.target as Node)) {
+                setIsOpenMobileSettingsMenu(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const currentConfig = TIMEZONE_CONFIG.find(tz => tz.id === currentTimeZone);
+    const currentConfig = TIMEZONE_CONFIG.find(timezone => timezone.id === currentTimeZone);
 
     return (
-        <div className="relative" ref={menuRef}>
+        <div className="relative" ref={timezoneMenuRef}>
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsOpenMobileSettingsMenu(!isOpenMobileSettingsMenu)}
                 className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                aria-expanded={isOpen}
+                aria-expanded={isOpenMobileSettingsMenu}
                 aria-label="设置"
             >
                 <Settings className="w-5 h-5 text-gray-600" />
             </button>
 
-            {isOpen && (
+            {isOpenMobileSettingsMenu && (
                 <div
                     className="absolute top-full right-0 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50"
                     style={{ maxHeight: MOBILE_MENU_MAX_HEIGHT }}
                 >
-                    {/* 时区设置 */}
+                    {/* timezone settings
+                    ❌ mobile timezone should also show the realtime of the selected timezone, shows on the top
+                    */}
                     <div className="p-4 border-b border-gray-200">
                         <div className="flex items-center gap-2 mb-2">
                             <Clock className="w-4 h-4 text-green-400" />
@@ -308,7 +315,7 @@ const MobileSettingsMenu: React.FC<{
                         </div>
                     </div>
 
-                    {/* 交易所设置 */}
+                    {/* exchange settings:❌ check if it can be choosed and showed */}
                     <div className="p-4">
                         <div className="flex items-center gap-2 mb-2">
                             <TrendingUp className="w-4 h-4 text-blue-400" />
@@ -320,16 +327,17 @@ const MobileSettingsMenu: React.FC<{
                                     key={exchange.id}
                                     onClick={() => {
                                         onExchangeChange(exchange);
-                                        setIsOpen(false);
+                                        setIsOpenMobileSettingsMenu(false);
                                     }}
-                                    className={`w-full px-3 py-2 text-left rounded hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between ${
-                                        currentExchange?.id === exchange.id ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' : 'text-gray-700'
+                                    className={`w-full px-3 py-2 text-left rounded hover:bg-gray-50 transition-colors duration-150 flex items-center justify-between 
+                                        ${currentExchange?.id === exchange.id ? 'bg-blue-100 text-blue-700 border-l-4 border-blue-500' : 'text-gray-700'
                                     }`}
                                 >
                                     <div className="flex items-center gap-2">
                                         <span className="text-sm font-medium">{exchange.name}</span>
                                         {exchange.isActive && <div className="w-2 h-2 bg-green-400 rounded-full"></div>}
                                     </div>
+                                    {/** ❌ balance format function */}
                                     <div className="text-xs text-gray-500">
                                         可用: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
                                     </div>
@@ -343,7 +351,7 @@ const MobileSettingsMenu: React.FC<{
     );
 };
 
-// 主导航组件
+// main navigation component(desktop)
 const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
     currentExchange,
     exchanges,
@@ -355,9 +363,9 @@ const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
 }) => {
     const [isMobile, setIsMobile] = useState(false);
 
-    // 检测移动端
+    // detect mobile
     useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        const checkMobile = () => setIsMobile(window.innerWidth < 1280);
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
@@ -370,12 +378,12 @@ const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
                 style={{ height: NAVIGATION_HEIGHT }}
             >
                 <div className="flex items-center justify-between h-full">
-                    {/* 页面导航（可滑动） */}
+                    {/* page navigation (scrollable) */}
                     <div className="flex-1 mr-4">
                         <PageNavigation currentPage={currentPage} onPageChange={onPageChange} />
                     </div>
 
-                    {/* 设置按钮 */}
+                    {/* settings button */}
                     <MobileSettingsMenu
                         currentExchange={currentExchange}
                         exchanges={exchanges}
@@ -394,14 +402,14 @@ const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
             style={{ height: NAVIGATION_HEIGHT }}
         >
             <div className="flex items-center justify-between h-full max-w-7xl mx-auto">
-                {/* 左侧：页面导航 */}
+                {/* left: page navigation */}
                 <div className="flex-1">
                     <PageNavigation currentPage={currentPage} onPageChange={onPageChange} />
                 </div>
 
-                {/* 右侧：工具栏 */}
+                {/* right: toolbar */}
                 <div className="flex items-center gap-4 ml-8">
-                    <ExchangeDropdown
+                    <ExchangeDropdownMenu
                         currentExchange={currentExchange}
                         exchanges={exchanges}
                         onExchangeChange={onExchangeChange}

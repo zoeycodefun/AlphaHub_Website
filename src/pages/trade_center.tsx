@@ -1,6 +1,6 @@
 import React, { useState, useCallback, memo } from 'react';
 import TradeCenterNavigation from './trade_center_pages/trade_center_pages_components/trade_center_navigation';
-import { Exchange, TimeZone } from './trade_center_pages/page_type/trade_center_navigation_type';
+import { type Exchange, type TimeZone } from './trade_center_pages/page_type/trade_center_navigation_type';
 
 /**
  * 交易中心页面 - 导航测试界面
