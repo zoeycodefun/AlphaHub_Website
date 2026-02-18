@@ -72,6 +72,18 @@ export interface TradeCenterNavigationProps {
     readonly onPageChange: (pageId: string) => void;
 }
 
+
+// trade center status type interface
+export interface TradeCenterState {
+    readonly currentExchange: Exchange | null;
+    readonly currentTimeZone: TimeZone;
+    readonly currentPage: string;
+    readonly isLoading: boolean;
+    readonly error: string | null;
+    readonly userPermissions: readonly string[];
+    
+}
+
 // type guard function
 export const isValidTimeZone = (value: string): value is TimeZone => {
     return TIMEZONE_CONFIG.some(timezone => timezone.id === value);

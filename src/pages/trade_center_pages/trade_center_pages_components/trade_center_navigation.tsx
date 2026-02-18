@@ -10,7 +10,7 @@ import {
     MAX_EXCHANGE_MENU_HEIGHT,
     // MOBILE_MENU_MAX_HEIGHT,
     NAVIGATION_HEIGHT
-} from '../page_type/trade_center_navigation_type';
+} from '../type/trade_center_navigation_type';
 
 // debounce hook
 /*
