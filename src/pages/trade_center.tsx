@@ -72,8 +72,10 @@ const TradeCenter: React.FC = memo(() => {
     });
     // handle page change
     useEffect(() => {
-        const pathSegments = location.pathname.split('/');
-        const pageId = pathSegments[pathSegments.length - 1];
+        // relative path and delete the prefix of "trade_center"
+        const relativePath = location.pathname.replace('/trading_center', '').replace(/^\//, '');
+        // if path is empty, return to contract trading page
+        const pageId = relativePath || 'contract_trading';
         const vaildPage = PAGE_CONFIGS.find(config => config.id === pageId);
         if (vaildPage && vaildPage.id !== state.currentPage) {
             setState(prevState => ({ ...prevState, currentPage: vaildPage.id }));
@@ -106,14 +108,22 @@ const TradeCenter: React.FC = memo(() => {
             return;
         }
         setState(prevState => ({ ...prevState, currentPage: pageId, error: null }));
-        navigate(pageConfig.path);
+        // relative path to guide
+        navigate(pageId);
         console.log('Navigating to page:', pageId);
     }, [navigate, checkPermission]);
 
-    // ❌交易所数据，从后端API获取交易所数据
+    // ❌交易所数据，从后端API获取交易所数据，现在模拟
     const exchanges = useMemo((): readonly Exchange[] => [
+        {
+            id: 'binance',
+            name: 'Binance',
+            isActive: true,
+            balance: { total: 1000, available: 800, currency: 'USDT'}
+        }
 
     ], []);
+
     // current page config
     const currentPageConfig = useMemo(() => 
     PAGE_CONFIGS.find(config => config.id === state.currentPage),

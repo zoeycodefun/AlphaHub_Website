@@ -107,7 +107,7 @@ const App: React.FC = () => {
               {/* 投资研究路由 */}
               <Route path="investment_research" element={<InvestResearch />} />
               {/* 交易中心路由 */}
-              <Route path="trading_center" element={<TradeCenter />} />
+              <Route path="trading_center/*" element={<TradeCenter />} />
             </Route>
           </Routes>
         </Suspense>
