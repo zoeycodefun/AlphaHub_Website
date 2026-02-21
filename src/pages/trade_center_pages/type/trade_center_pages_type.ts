@@ -13,7 +13,7 @@ export const PAGE_CONFIGS: readonly PageConfig[] = [
     {
         id: 'spot_trading',
         path: '/trade_center/spot_trading',
-        component: () => import('../spot_trading_page'),
+        component: () => import('../spot_trading_page.tsx'),
         title: '现货交易',
     },
     {

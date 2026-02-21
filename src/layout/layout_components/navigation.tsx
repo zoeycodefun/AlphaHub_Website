@@ -108,6 +108,10 @@ const Navigation: React.FC<NavigationProps> = memo(({
 }) => {
     const currentLocation = useLocation();
     const getIsNavigationItemActive = useCallback((item: NavigationItem): boolean => {
+        // 对于交易中心，支持嵌套路由匹配
+        if (item.path === '/trading_center') {
+            return currentLocation.pathname.startsWith('/trading_center');
+        }
         return currentLocation.pathname === item.path;
     }, [currentLocation.pathname]);
     // 过滤可用导航

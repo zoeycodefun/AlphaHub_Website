@@ -61,11 +61,21 @@ const DefaultErrorFallback: React.FC<{ error: Error }> = memo(({ error}) => (
 const TradeCenter: React.FC = memo(() => {
     const navigate = useNavigate();
     const location = useLocation();
+
+    // 从 localStorage 获取最后选择的页面，如果没有则使用默认的合约交易
+    const getInitialPage = useCallback(() => {
+        const savedPage = localStorage.getItem('trade_center_last_page');
+        if (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) {
+            return savedPage;
+        }
+        return 'contract_trading'; // 默认页面
+    }, []);
+
     // use separate types
     const [state, setState] = useState<TradeCenterState>({
         currentExchange: null,
         currentTimeZone: 'LOCAL',
-        currentPage: 'spot_trading',
+        currentPage: getInitialPage(),
         isLoading: false,
         error: null,
         userPermissions: ['trade', 'analysis'], // ❌ should be fetched from backend API based on user auth and the users auth system
@@ -73,14 +83,41 @@ const TradeCenter: React.FC = memo(() => {
     // handle page change
     useEffect(() => {
         // relative path and delete the prefix of "trade_center"
-        const relativePath = location.pathname.replace('/trading_center', '').replace(/^\//, '');
-        // if path is empty, return to contract trading page
-        const pageId = relativePath || 'contract_trading';
+        const relativePath = location.pathname.replace(/^\/trading_center\/?/, '');
+        // if path is empty, use the saved page from localStorage or default to contract trading
+        let pageId: string;
+        if (relativePath) {
+            pageId = relativePath;
+        } else {
+            // 如果路径为空，优先使用 localStorage 中保存的页面
+            const savedPage = localStorage.getItem('trade_center_last_page');
+            pageId = (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) ? savedPage : 'contract_trading';
+        }
+
+        console.log('Current location:', location.pathname);
+        console.log('Relative path:', relativePath);
+        console.log('Page ID:', pageId);
+
         const vaildPage = PAGE_CONFIGS.find(config => config.id === pageId);
         if (vaildPage && vaildPage.id !== state.currentPage) {
+            console.log('Setting current page to:', vaildPage.id);
             setState(prevState => ({ ...prevState, currentPage: vaildPage.id }));
         }
-    }, [location.pathname, state.currentPage]);
+    }, [location.pathname]); // 移除 state.currentPage 依赖，避免无限循环
+
+    // 当组件挂载且路径为空时，导航到正确的页面
+    useEffect(() => {
+        const relativePath = location.pathname.replace(/^\/trading_center\/?/, '');
+        if (!relativePath) {
+            const savedPage = localStorage.getItem('trade_center_last_page');
+            const targetPage = (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) ? savedPage : 'contract_trading';
+
+            // 直接设置状态并导航
+            setState(prevState => ({ ...prevState, currentPage: targetPage }));
+            navigate(`/trading_center/${targetPage}`, { replace: true });
+        }
+    }, []); // 只在组件挂载时执行一次
+
     // handle permissions check function
     const checkPermission = useCallback((requiredPermissions?: readonly string[]): boolean => {
         if (!requiredPermissions) return true;
@@ -94,22 +131,31 @@ const TradeCenter: React.FC = memo(() => {
         // ❌ 使用API调用同步交易所状态
         console.log('Selected exchange:', exchange);
     }, []);
+
     // handle timezone change
     const handleTimeZoneChange = useCallback((timezone: TimeZone) => {
         setState(prevState => ({ ...prevState, currentTimeZone: timezone }));
         console.log('Selected timezone:', timezone);
     }, []);
+
     // handle page change
     const handlePageChange = useCallback((pageId: string) => {
         const pageConfig = PAGE_CONFIGS.find(config => config.id === pageId);
-        if (!pageConfig) return;
+        if (!pageConfig) {
+            console.error('Invalid page ID:', pageId);
+            return;
+        }
+
         if (!checkPermission(pageConfig.requiredPermissions)) {
             setState(prevState => ({ ...prevState, error: 'You do not have permission to access this page.' }));
             return;
         }
         setState(prevState => ({ ...prevState, currentPage: pageId, error: null }));
+        // 保存用户最后选择的页面到 localStorage
+        localStorage.setItem('trade_center_last_page', pageId);
         // relative path to guide
-        navigate(pageId);
+        console.log('Navigating to page:', `/trading_center/${pageId}`);
+        navigate(`/trading_center/${pageId}`, { replace: true});
         console.log('Navigating to page:', pageId);
     }, [navigate, checkPermission]);
 
@@ -119,7 +165,7 @@ const TradeCenter: React.FC = memo(() => {
             id: 'binance',
             name: 'Binance',
             isActive: true,
-            balance: { total: 1000, available: 800, currency: 'USDT'}
+            balance: { total: 1000, available: 800, currency: ' USDT'}
         }
 
     ], []);
@@ -157,13 +203,20 @@ const TradeCenter: React.FC = memo(() => {
                                 </div>
                             )}
                         </div>
+                        {/** test use */}
+                        {/** <div>
+                            <div>current page: {state.currentPage}</div>
+                            <div>current path: {location.pathname}</div>
+                            <div>page config: {currentPageConfig ? 'found' : 'not found'}</div>
+                        </div>
+                        /}
                         {/** page content */}
                         <Suspense fallback={<PageLoader />}>
                         <Routes>
                             {PAGE_CONFIGS.map((config) => (
                                 <Route
                                 key={config.id}
-                                path={config.path}
+                                path={config.id}
                                 element={
                                     checkPermission(config.requiredPermissions) ? (
                                         loadPageComponent(config)
@@ -175,9 +228,9 @@ const TradeCenter: React.FC = memo(() => {
                                 }
                                 ></Route>
                             ))}
-                            {/** default route to spot trading */}
+                            {/** default route to trading center */}
                             <Route
-                            path="/trade_center"
+                            index
                             element={loadPageComponent(PAGE_CONFIGS[0])}
                             ></Route>
                         </Routes>

@@ -1,7 +1,7 @@
 
 export default function SpotPage() {
     return (
-        <div>
+        <div className="bg-re-50 text-6xl">
             spot page(all symbols)
         </div>
     )
