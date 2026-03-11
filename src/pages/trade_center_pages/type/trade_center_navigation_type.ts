@@ -29,19 +29,19 @@ export const TIMEZONE_CONFIG: ReadonlyArray<{
     readonly offset: number;
     readonly description: string;
 }> = [
-    { id: 'UTC', label: '协调世界时', country: '国际', offset: 0, description: 'Coordinated Universal Time' },
-    { id: 'EST', label: '东部标准时间', country: '美国', offset: -5, description: 'Eastern Standard Time' },
-    { id: 'CST', label: '中部标准时间', country: '美国', offset: -6, description: 'Central Standard Time' },
-    { id: 'PST', label: '太平洋标准时间', country: '美国', offset: -8, description: 'Pacific Standard Time' },
-    { id: 'GMT', label: '格林尼治标准时间', country: '英国', offset: 0, description: 'Greenwich Mean Time' },
-    { id: 'JST', label: '日本标准时间', country: '日本', offset: 9, description: 'Japan Standard Time' },
-    { id: 'HKT', label: '香港时间', country: '中国香港', offset: 8, description: 'Hong Kong Time' },
-    { id: 'KST', label: '韩国标准时间', country: '韩国', offset: 9, description: 'Korea Standard Time' },
-    { id: 'ICT', label: '印度支那时间', country: '泰国', offset: 7, description: 'Indochina Time' },
-    { id: 'SGT', label: '新加坡时间', country: '新加坡', offset: 8, description: 'Singapore Time' },
-    { id: 'AEDT', label: '澳大利亚东部夏令时', country: '澳大利亚', offset: 10, description: 'Australian Eastern Daylight Time' },
-    { id: 'NZDT', label: '新西兰夏令时', country: '新西兰', offset: 12, description: 'New Zealand Daylight Time' },
-    { id: 'LOCAL', label: '本地时间', country: '本地', offset: new Date().getTimezoneOffset() / -60, description: 'Local Time' },
+    { id: 'UTC', label: 'UTC', country: 'International', offset: 0, description: 'Coordinated Universal Time' },
+    { id: 'EST', label: 'Eastern Standard Time', country: 'United States', offset: -5, description: 'Eastern Standard Time' },
+    { id: 'CST', label: 'Central Standard Time', country: 'United States', offset: -6, description: 'Central Standard Time' },
+    { id: 'PST', label: 'Pacific Standard Time', country: 'United States', offset: -8, description: 'Pacific Standard Time' },
+    { id: 'GMT', label: 'Greenwich Mean Time', country: 'United Kingdom', offset: 0, description: 'Greenwich Mean Time' },
+    { id: 'JST', label: 'Japan Standard Time', country: 'Japan', offset: 9, description: 'Japan Standard Time' },
+    { id: 'HKT', label: 'Hong Kong Time', country: 'Hong Kong SAR', offset: 8, description: 'Hong Kong Time' },
+    { id: 'KST', label: 'Korea Standard Time', country: 'South Korea', offset: 9, description: 'Korea Standard Time' },
+    { id: 'ICT', label: 'Indochina Time', country: 'Thailand', offset: 7, description: 'Indochina Time' },
+    { id: 'SGT', label: 'Singapore Time', country: 'Singapore', offset: 8, description: 'Singapore Time' },
+    { id: 'AEDT', label: 'Australian Eastern Daylight Time', country: 'Australia', offset: 10, description: 'Australian Eastern Daylight Time' },
+    { id: 'NZDT', label: 'New Zealand Daylight Time', country: 'New Zealand', offset: 12, description: 'New Zealand Daylight Time' },
+    { id: 'LOCAL', label: 'Local Time', country: 'Local', offset: new Date().getTimezoneOffset() / -60, description: 'Local Time' },
 ] as const;
 
 // get current time in specified timezone (including seconds)

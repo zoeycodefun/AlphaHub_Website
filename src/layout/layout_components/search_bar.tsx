@@ -2,7 +2,9 @@ import React, {useState, useCallback, useRef, memo} from 'react';
 import axios, {type CancelTokenSource } from 'axios';
 
 /**
- * search bar component
+ * search bar component: global search functionality, search for things in the current page, support fuzzy matching (intelligent search extension)
+ * search results appear in a popup, not occupying the main page
+ * search window has search bar, 
  */
 
 interface SearchResult {
@@ -51,6 +53,7 @@ const useSearch = () => {
             setIsLoading(false);
         }
     }, []);
+
     const clearSearch = useCallback(() => {
         setResults([]);
         setError(null);
@@ -121,7 +124,6 @@ const SearchBar: React.FC = memo(()=> {
             </svg>
         </button>
 
-        {/** search window */}
         {showSearchWindow && (
             <div
             className='fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-16 transition-opacity duration-300'
@@ -130,7 +132,6 @@ const SearchBar: React.FC = memo(()=> {
             aria-modal='true'
             aria-labelledby='search-dialog-title'
             >
-                {/** search window content */}
                 <div
                 className='w-full max-w-2xl bg-white rounded-lg shadow-2xl max-h-[80vh] overflow-hidden mx-4'
                 onClick={(event) => event.stopPropagation()}
@@ -140,7 +141,7 @@ const SearchBar: React.FC = memo(()=> {
                     bg-gray-50 rounded-t-lg 
                     '
                     >
-                        <span className='text-xl text-gray-900'>全局搜索</span>
+                        <span className='text-xl text-gray-900'>Global Search</span>
                         <button
                         onClick={closeSearchWindow}
                         className='p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 
@@ -153,7 +154,6 @@ const SearchBar: React.FC = memo(()=> {
                             </svg>
                         </button>
                     </header>
-                    {/** search input and output */}
                     <div className='p-4 border-b border-gray-200'>
                         <div className='flex gap-2'>
                             <div className='flex-1 relative'>
@@ -162,7 +162,7 @@ const SearchBar: React.FC = memo(()=> {
                                 value={searchKeywordQuery}
                                 onChange={handleInputChange}
                                 onKeyDown={handleKeyboardDown}
-                                placeholder='请输入搜索关键词...'
+                                placeholder='please input searching keyword...'
                                 className='w-full px-2 py-3 pl-12 border border-gray-300 rounded-full
                                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
                                 '
@@ -191,7 +191,7 @@ const SearchBar: React.FC = memo(()=> {
                                     </svg>
                                 ):(
                                     <>
-                                    搜索
+                                    Search
                                     </>
                                 )}
                              </button>
@@ -207,7 +207,6 @@ const SearchBar: React.FC = memo(()=> {
                         )}
                     </div>
 
-                    {/** search result */}
                     <main
                     className='overflow-y-auto max-h-96 p-4 scrollbar-hide '
                     >
@@ -247,21 +246,21 @@ const SearchBar: React.FC = memo(()=> {
                     ):isLoading ? (
                         <div className='flex items-center justify-center py-12'>
                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                             <span className='ml-3 text-gray-600'>搜索中...</span>
+                             <span className='ml-3 text-gray-600'>Searching...</span>
                         </div>
                     ):searchKeywordQuery ? (
                         <div className='text-center py-12'>
                             <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <p className='mt-2 text-gray-500'>未找到匹配结果</p>
+                            <p className='mt-2 text-gray-500'>Do not find matching results</p>
                         </div>
                     ):(
                         <div className='text-center py-12'>
                             <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <p className='mt-2 text-gray-500'>请输入关键词开始搜索</p>
+                            <p className='mt-2 text-gray-500'>Please input keywords for searching</p>
                         </div>
                     )}
                     </main>

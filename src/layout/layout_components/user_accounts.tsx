@@ -2,10 +2,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { X, Plus, Link, Settings, Trash2, Loader, User, Mail, Phone, AlertTriangle} from 'lucide-react'
 
-// ❌❌ 用户信息加密后端存储，表单验证，实时反馈错误，API连接，，，根据后端调整
+// TODO: encrypt user info before sending to backend, perform form validation, provide real-time error feedback, integrate APIs, adjust according to backend
 
 
-// 类型定义（安全）
+
 interface PlatformUser {
     id:  string;
     username: string;
@@ -21,7 +21,7 @@ interface PlatformUser {
 }
 
 interface Exchange {
-    id: string; // 交易所唯一标识符
+    id: string;
     name: string; 
     type: 'CEX' | 'DEX' | 'OTHER';
     isConnected: boolean;
@@ -41,11 +41,11 @@ interface ExchangeAccount {
 type AccountType = 'CEX' | 'DEX' | 'OTHER';
 type operateWindowType = 'connect' | 'add' | 'manage' | null;
 
-// 常量定义
+
 const EXCHANGE_TYPES = {
-    CEX: '中心化交易所',
-    DEX: '去中心化交易所',
-    OTHER: '其他账户',
+    CEX: 'Centralized Exchange',
+    DEX: 'Decentralized Exchange',
+    OTHER: 'Other Account',
 } as const;
 
 const EXCHANGES: Exchange[] = [
@@ -66,12 +66,12 @@ const PlatformUserInfo: React.FC<{
     return (
         <div className='bg-white border border-gray-100 rounded-lg p-4 mb-6'>
             <div className='flex items-center justify-between mb-4'>
-                <p className='text-lg text-gray-900'>平台账户信息</p>
+                <p className='text-lg text-gray-900'>Platform Account Information</p>
                 <button 
                 onClick={onEdit}
                 className='text-blue-600 hover:text-blue-800 text-sm'
                 >
-                    编辑
+                    Edit
                 </button>
             </div>
             <div className='flex items-center space-x-4 '>
@@ -139,16 +139,16 @@ const PlatformAccountLoginRegisterRequired: React.FC<{
                 <AlertTriangle className='w-5 h-5 text-blue-700 mt-0.5'/>
                 <div className='flex-1'>
                     <p className='text-sm text-blue-800 mb-1'>
-                        请先登录或注册平台账户以连接交易所账户和使用更多功能
+                        Please log in or register a platform account to connect exchange accounts and use more features
                     </p>
                     <p className='text-sm text-blue-700 mb-3'>
-                        您需要先创建或者绑定平台账号，才能绑定交易所账户进行交易
+                        You need to create or bind a platform account before linking exchange accounts for trading
                     </p>
                     <button
                     onClick={onBindPlatformAccount}
                     className='px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors'
                     >
-                        绑定平台账号
+                        Bind Platform Account
                     </button>
                 </div>
             </div>
@@ -174,7 +174,7 @@ const UserAccounts: React.FC<{
     const [allAccounts, setAllAccounts] = useState<ExchangeAccount[]>([]);
 
     
-    // ❌❌ 组件挂载时从后端加载用户数据，数据库存储
+    // TODO: on mount load user data from backend (database storage)
     useEffect(() => {
         const savedAccounts = localStorage.getItem('exchangeAccounts');
         if (savedAccounts) {
@@ -227,7 +227,7 @@ const UserAccounts: React.FC<{
                 )
             ));
             try {
-                // ❌❌ 实际的API连接
+                // TODO: real API connection
                 await new Promise((reslove, reject) => {
                     setTimeout(() => Math.random() > 0.2 ? reslove(true) :
                 reject(new Error('Connection failded: Please check API credentials or network.')), 2000);
@@ -245,7 +245,7 @@ const UserAccounts: React.FC<{
                     account.id === account.id ? { ...account, isConnecting: false} : account
                     )
                 );
-                // ❌❌ 显示错误通知
+                // ❌❌ error notification
             }
         }, [allAccounts, saveAccounts]
         );
@@ -277,7 +277,7 @@ const UserAccounts: React.FC<{
 
     // bind platform account handler
     const handleBindPlatformAccount = useCallback(() => {
-        // ❌❌ 绑定平台账户的实际操作，可能是打开登录/注册弹窗，或者跳转到账户设置页等
+        // TODO: actual platform account bind action (might open login/register modal or redirect to settings)
         console.log('Bind platform account');
     }, []);
 
@@ -294,11 +294,11 @@ const UserAccounts: React.FC<{
                     <div className='flex justify-between items-center p-4 border-b 
                     md:col-span-2
                     '>
-                        <span className='text-lg md:text-xl '>账户管理</span>
+                        <span className='text-lg md:text-xl '>Account Management</span>
                         <button
                         onClick={closeAccountWindow}
                         className='p-2 hover:bg-gray-200 rounded-full transition-colors '
-                        aria-label="关闭账户管理弹窗"
+                        aria-label="Close account management dialog"
                         >
                             <X className="w-6 h-6 md:w-7 md:h-7" />
                         </button>
@@ -339,7 +339,7 @@ const UserAccounts: React.FC<{
                                 </div>
                                 {/** right: exchanges list and related operation */}
                                 <div className='space-y-4'>
-                                    <p className='text-lg mb-4 '>{EXCHANGE_TYPES[activeExchangeType]}列表</p>
+                                    <p className='text-lg mb-4 '>{EXCHANGE_TYPES[activeExchangeType]} List</p>
                                     <div className='space-y-4'>
                                         {filteredExchanges.map((exchange) => {
                                             const exchangeAccounts = getExchangeAccounts(exchange.id);
@@ -354,7 +354,7 @@ const UserAccounts: React.FC<{
                                                         <div>
                                                             <div className='mb-2 flex flex-col'>
                                                                 <span className='text-sm md:text-lg'>{exchange.name}</span>
-                                                                <span>{exchangeAccounts.length} 个账户</span>
+                                                                <span>{exchangeAccounts.length} accounts</span>
                                                             </div>
                                                         </div>
                                                         {/** right: operation buttons and attached popup hook */}
@@ -368,7 +368,7 @@ const UserAccounts: React.FC<{
                                                             className='flex items-center gap-2 px-3 py-2 md:px-4 md:py-2'
                                                             >
                                                                 <Link className='w-4 h-4'/>
-                                                                连接账户
+                                                                Connect Account
                                                             </button>
                                                             {/** add accounts */}
                                                             <button
@@ -379,7 +379,7 @@ const UserAccounts: React.FC<{
                                                             className='flex items-center gap-2 px-3'
                                                             >
                                                                 <Plus className='w-4 h-4'/>
-                                                                新增账户
+                                                                Add Account
                                                             </button>
                                                             {/** manage accounts */}
                                                             <button
@@ -390,7 +390,7 @@ const UserAccounts: React.FC<{
                                                             className='flex items-center gap-2 px-3 py-2 md:py-2 bg-gray-50 rounded-full hover:bg-gray-50 transition-colors'
                                                             >
                                                                 <Settings className='w-4 h-4'/>
-                                                                管理账户
+                                                                Manage Accounts
                                                             </button>
                                                         </div>
                                                     </div>
@@ -399,7 +399,7 @@ const UserAccounts: React.FC<{
                                                         <div
                                                         className='text-sm text-gray-600'
                                                         >
-                                                            已连接账户：{exchangeAccounts.map(account => account.name).join(', ')}
+                                                            Connected accounts: {exchangeAccounts.map(account => account.name).join(', ')}
                                                         </div>
                                                     )}
                                                 </div>
@@ -458,19 +458,19 @@ const ConnectAccountSubWindow: React.FC<{
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
             {/** connect account sub window */}
             <div className='bg-white rounded-lg max-w-md w-full p-4 md:p-6 flex flex-col'>
-                <span className='text-lg mb-4'>连接{exchange.name}账户</span>
+                <span className='text-lg mb-4'>Connect {exchange.name} Account</span>
                 {accounts.length === 0 ? (
-                    <span className='text-gray-600'>暂无可连接账户，请先新增账户</span>
+                    <span className='text-gray-600'>No accounts available to connect, please add one first</span>
                 ):(
                     // if have accounts, show select and connect button
                     <div className='mb-4'>
-                        <label className='block text-sm mb-2'>选择要连接的账户</label>
+                        <label className='block text-sm mb-2'>Select account to connect</label>
                         <select
                         value={selectedAccountId}
                         onChange={(event) => setSelectedAccountId(event.target.value)}
                         className='w-full p-3 border rounded-lg '
                         >
-                            <option value="">请选择账户</option>
+                            <option value="">Please select an account</option>
                             {accounts.map((account) => (
                                 <option 
                                 key = {account.id}
@@ -487,7 +487,7 @@ const ConnectAccountSubWindow: React.FC<{
                     <button
                     onClick={onClose}
                     className='px-4 py-3 md:px-6 md:py-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors'
-                    >取消</button>
+                    >Cancel</button>
                     <button
                     onClick={()=>{
                         const account = accounts.find(account => account.id === selectedAccountId);
@@ -498,7 +498,7 @@ const ConnectAccountSubWindow: React.FC<{
                     disabled={!selectedAccountId}
                     className='px-4 py-3 md:px-6 md:py-2 bg-blue-50 rounded-full hover:bg-blue-100 disabled:opacity-50 transition-colors'
                     >
-                        连接
+                        Connect
                     </button>
                 </div>
             </div>
@@ -516,7 +516,7 @@ const AddAccountSubWindow: React.FC<{
     onAdd,
     onClose
 }) => {
-    // ❌表单设置(加密存储与极度安全的设置)
+    // TODO: form setup (encrypted storage and high-security settings)
     const [accountFormData, setAccountFormData] = useState({
         name: '',
         apiKey: '',
@@ -547,7 +547,7 @@ const AddAccountSubWindow: React.FC<{
     return (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
             <div className='bg-white rounded-lg max-w-md w-full p-4 md:p-6'>
-                <h3 className='text-lg mb-4'>新增{exchange.name}账户</h3>
+                <h3 className='text-lg mb-4'>Add {exchange.name} Account</h3>
                 <form
                 onSubmit={handleSubmitAccountInfo}
                 className='space-y-4'
@@ -555,19 +555,18 @@ const AddAccountSubWindow: React.FC<{
                     <label
                     className='block text-sm mb-1'
                     >
-                        账户名称
+                        Account Name
                     </label>
                     <input 
                     type="text"
                     value={accountFormData.name}
                     onChange={(event) => setAccountFormData({ ...accountFormData, name: event.target.value })}
                     className='w-full p-3 border rounded-full focus:outline-none'
-                    placeholder='请输入账户名称'
+                    placeholder='Enter account name'
                     required
                     />
                     {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name}</p>}
         
-                        {/** 有条件的渲染：中心化交易所API */}
                         {exchange.type === 'CEX' && (
                             <>
                             <div>
@@ -579,7 +578,7 @@ const AddAccountSubWindow: React.FC<{
                                 value={accountFormData.apiKey}
                                 onChange={(event) => setAccountFormData({...accountFormData, apiKey: event.target.value})}
                                 className='w-full p-3 border rounded-full focus:outline-none'
-                                placeholder='请输入API Key'
+                                placeholder='Enter API Key'
                                 required
                                 />
                                 {errors.apiKey && <p className='text-red-500 text-sm mt-1'>{errors.apiKey}</p>}
@@ -593,7 +592,7 @@ const AddAccountSubWindow: React.FC<{
                                 value={ accountFormData.apiSecretKey}
                                 onChange={(event) => setAccountFormData({...accountFormData, apiSecretKey: event.target.value})}
                                 className='w-full p-3 border rounded-full focus:outline-none'
-                                placeholder='输入Secret Key'
+                                placeholder='Enter Secret Key'
                                 required
                                 />
                                 {errors.apiSecretKey && <p className='text-red-500 text-sm mt-1'>{errors.apiSecretKey}</p>}
@@ -605,13 +604,13 @@ const AddAccountSubWindow: React.FC<{
                             <div>
                                 <label 
                                 className='block text-sm mb-1'
-                                >钱包地址</label>
+                                >Wallet Address</label>
                                 <input 
                                 type="text"
                                 value={accountFormData.walletAddress}
                                 onChange={(event) => setAccountFormData({...accountFormData, walletAddress: event.target.value})}
                                 className='w-full p-3 border rounded-full focus:outline-none'
-                                placeholder='输入钱包地址'
+                                placeholder='Enter wallet address'
                                 required
                                 />
                                 {errors.walletAddress && <p className='text-red-500 text-sm mt-1'>{errors.walletAddress}</p>}
@@ -625,12 +624,12 @@ const AddAccountSubWindow: React.FC<{
                             onClick= {onClose}
                             className='px-4 py-3 md:px-6 md:py-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors'
                             >
-                                取消
+                                Cancel
                             </button>
                             <button
                             type="submit"
                             className='px-4 py-3 md:py-2 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors'
-                            >新增账户</button>
+                            >Add Account</button>
                         </div>
                 </form>
             </div>
@@ -658,10 +657,10 @@ const ManageAccountSubWindow: React.FC<{
             className='bg-white rounded-lg max-w-lg w-full p-4 md:p-6'
             >
                 <h3 className='text-lg mb-4'>
-                    管理{exchange.name}账户
+                    Manage {exchange.name} Accounts
                 </h3>
                 {accounts.length === 0 ? (
-                    <span>暂无可管理账户，请先新增账户</span>
+                    <span>No accounts to manage, please add one first</span>
 
                 ):(
                     // show accounts list for management
@@ -673,21 +672,21 @@ const ManageAccountSubWindow: React.FC<{
                             >
                                 <div className='flex-1'>
                                     <p className=''>{account.name}</p>
-                                    <p className=''>创建时间：{account.createdAt.toLocaleDateString()}</p>
+                                    <p className=''>Created: {account.createdAt.toLocaleDateString()}</p>
                                     {account.lastConnectedAt && (
-                                    <p className=''>最后连接：{account.lastConnectedAt.toLocaleDateString()}</p>
+                                    <p className=''>Last connected: {account.lastConnectedAt.toLocaleDateString()}</p>
                                 )}
                                 {account.isConnecting && (
                                     <div className='flex items-center gap-2 text-blue-100'>
                                         <Loader className='w-4 h-4 animate-spin'/>
-                                        连接中...
+                                        Connecting...
                                     </div>
                                 )}
                                 </div>
                                 <button
                                 onClick={() => setDeleteConfirm(account.id)}
                                 className='p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors'
-                                aria-label="删除账户"
+                                aria-label="Delete account"
                                 >
                                     <Trash2 className='w-4 h-4'/>
                                 </button>
@@ -700,7 +699,7 @@ const ManageAccountSubWindow: React.FC<{
                     onClick={onClose}
                     className='px-4 py-3 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors'
                     >
-                        关闭
+                        Close
                     </button>
                 </div>
             </div>
@@ -708,13 +707,13 @@ const ManageAccountSubWindow: React.FC<{
             {deleteConfirm && (
                 <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
                     <div className='bg-white rounded-lg max-w-sm w-full p-4 md:p-6'>
-                        <h4 className='text-lg mb-4'>确认删除</h4>
-                        <p className='text-gray-600 mb-4'>确定要删除该账户吗？此操作不可撤销。</p>
+                        <h4 className='text-lg mb-4'>Confirm Deletion</h4>
+                        <p className='text-gray-600 mb-4'>Are you sure you want to delete this account? This action cannot be undone.</p>
                         <div className='flex flex-col sm:flex-row justify-end gap-2'>
                             <button
                             onClick={() => setDeleteConfirm(null)}
                             className='px-4 py-3 md:px-6 md:py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition-colors'
-                            >取消</button>
+                            >Cancel</button>
                             <button
                             onClick={() => {
                                 onDelete(deleteConfirm)
@@ -722,7 +721,7 @@ const ManageAccountSubWindow: React.FC<{
                             }}
                             className='px-4 py-3 md:px-6 md:py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors'
                             >
-                                删除
+                                Delete
                             </button>
                         </div>
                     </div>

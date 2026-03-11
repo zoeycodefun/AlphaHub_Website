@@ -47,13 +47,13 @@ class ErrorBoundary extends React.Component<
 }
 const DefaultErrorFallback: React.FC<{ error: Error }> = memo(({ error}) => (
     <div className='flex flex-col items-center justify-center h-64 text-center'>
-        <div className='text-red-500 text-lg font-semibold mb-2'>页面加载失败</div>
+        <div className='text-red-500 text-lg font-semibold mb-2'>Failed to load page</div>
         <div className='text-gray-600 text-sm mb-4'>{error.message}</div>
         <button 
         onClick={() => window.location.reload()}
         className='px-4 py-2 bg-blue-400 text-white rounded hover:bg-blue-500 transition-colors'
         >
-            重新加载
+            Reloading...
         </button>
     </div>
 ));
@@ -62,13 +62,12 @@ const TradeCenter: React.FC = memo(() => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // choose the last page from localStorage, if not exist, use the default contract trading page
     const getInitialPage = useCallback(() => {
         const savedPage = localStorage.getItem('trade_center_last_page');
         if (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) {
             return savedPage;
         }
-        return 'contract_trading'; // default page
+        return 'spot_trading';
     }, []);
 
     // use separate types
@@ -89,7 +88,6 @@ const TradeCenter: React.FC = memo(() => {
         if (relativePath) {
             pageId = relativePath;
         } else {
-            // if path is empty, use the saved page from localStorage or default to contract trading
             const savedPage = localStorage.getItem('trade_center_last_page');
             pageId = (savedPage && PAGE_CONFIGS.find(config => config.id === savedPage)) ? savedPage : 'contract_trading';
         }
@@ -104,9 +102,7 @@ const TradeCenter: React.FC = memo(() => {
             setState(prevState => ({ ...prevState, currentPage: vaildPage.id }));
         }
     }, [location.pathname]);
-    // remove the dependency of state.currentPage to avoid infinite loop, because navigate will change the location which will trigger this useEffect again, but we only want to update the currentPage when the location changes, not when currentPage changes
 
-    // when the component mounts and the path is empty, navigate to the correct page
     useEffect(() => {
         const relativePath = location.pathname.replace(/^\/trading_center\/?/, '');
         if (!relativePath) {
@@ -117,7 +113,6 @@ const TradeCenter: React.FC = memo(() => {
             navigate(`/trading_center/${targetPage}`, { replace: true });
         }
     }, []);
-    // only operate when the component mounts
 
     // handle permissions check function
     const checkPermission = useCallback((requiredPermissions?: readonly string[]): boolean => {
@@ -129,7 +124,7 @@ const TradeCenter: React.FC = memo(() => {
     // handle exchange change
     const handleExchangeChange = useCallback((exchange: Exchange) => {
         setState(prevState => ({ ...prevState, currentExchange: exchange }));
-        // ❌ use API to fetch the exchange data and update the state
+        // ❌ 使用API调用同步交易所状态
         console.log('Selected exchange:', exchange);
     }, []);
 
@@ -152,7 +147,6 @@ const TradeCenter: React.FC = memo(() => {
             return;
         }
         setState(prevState => ({ ...prevState, currentPage: pageId, error: null }));
-        // save the user's last selected page to localStorage
         localStorage.setItem('trade_center_last_page', pageId);
         // relative path to guide
         console.log('Navigating to page:', `/trading_center/${pageId}`);
@@ -160,7 +154,7 @@ const TradeCenter: React.FC = memo(() => {
         console.log('Navigating to page:', pageId);
     }, [navigate, checkPermission]);
 
-    // ❌ exchange data, should be fetched from backend API, now mock data
+    // ❌交易所数据，从后端API获取交易所数据，现在模拟
     const exchanges = useMemo((): readonly Exchange[] => [
         {
             id: 'binance',
@@ -172,10 +166,14 @@ const TradeCenter: React.FC = memo(() => {
     ], []);
 
     // current page config
-    const currentPageConfig = useMemo(() => 
+    /**
+     * const currentPageConfig = useMemo(() => 
     PAGE_CONFIGS.find(config => config.id === state.currentPage),
     [state.currentPage]
     );
+     */
+
+    
 
     return (
         <ErrorBoundary>
@@ -195,9 +193,6 @@ const TradeCenter: React.FC = memo(() => {
                     <div className='max-w-7xl mx-auto'>
                         {/** page title */}
                         <div className='mb-6'>
-                            <p className='text-2xl font-bold text-gray-900'>
-                                {currentPageConfig ?.title || '交易中心'}
-                            </p>
                             {state.error && (
                                 <div className='mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded'>
                                     {state.error}

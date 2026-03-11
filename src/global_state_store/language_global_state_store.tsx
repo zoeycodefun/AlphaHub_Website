@@ -6,6 +6,6 @@ interface LanguageState {
 }
 
 export const useLanguageStore = create<LanguageState>((set) => ({
-    currentLanguage: 'zh',
+    currentLanguage: 'en',
     setCurrentLanguage: (language) => set({ currentLanguage: language})
 }))

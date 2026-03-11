@@ -66,7 +66,7 @@ const ExchangeDropdownMenu: React.FC<{
             {/**❌ check if the exchange name changes after selecting an exchange from the dropdown menu  */}
                 <TrendingUp className="w-4 h-4 text-blue-400" />
                 <span className="text-sm font-medium text-gray-900 truncate">
-                    {currentExchange?.name || '选择交易所'}
+                    {currentExchange?.name || 'choose exchange'}
                 </span>
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isOpenExchangeDropdownMenu ? 'rotate-180' : ''}`} />
             </button>
@@ -97,7 +97,7 @@ const ExchangeDropdownMenu: React.FC<{
                             </div>
                             {/** ❌ balance format function */}
                             <div className="text-xs text-gray-500">
-                                可用: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
+                                Avaliable: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
                             </div>
                         </button>
                     ))}
@@ -142,7 +142,7 @@ const TimeZoneDisplay: React.FC<{
         <div className="relative" ref={timezoneDropdownRef}>
             <button
                 onClick={() => setIsOpenTimeZoneMenu(!isOpenTimeZoneMenu)}
-                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors min-w-[120px]"
                 aria-expanded={isOpenTimeZoneMenu}
                 aria-haspopup="listbox"
             >
@@ -192,15 +192,15 @@ const PageNavigation: React.FC<{
     onPageChange: (pageId: string) => void;
 }> = ({ currentPage, onPageChange }) => {
     const navigationItems: readonly NavigationItem[] = useMemo(() => [
-        { id: 'spot_trading', label: '现货交易', isActive: currentPage === 'spot_trading' },
-        { id: 'contract_trading', label: '合约交易', isActive: currentPage === 'contract_trading' },
-        { id: 'hedge_trade', label: '对冲交易', isActive: currentPage === 'hedge_trade' },
-        { id: 'signals_analysis_center', label: '信号分析中心', isActive: currentPage === 'signals_analysis_center' },
-        { id: 'altcoin_position_management', label: '持仓管理', badge: '3', isActive: currentPage === 'altcoin_position_management' },
-        { id: 'new_token_sniping', label: '新币狙击', isActive: currentPage === 'new_token_sniping' },
-        { id: 'signals_backtesting', label: '信号回测', isActive: currentPage === 'signals_backtesting' },
-        { id: 'strategies_center', label: '策略中心', isActive: currentPage === 'strategies_center'},
-        { id: 'profit_loss_analysis', label: '盈亏分析', isActive: currentPage === 'profit_loss_analysis' },
+        { id: 'spot', label: 'Spot', isActive: currentPage === 'spot' },
+        { id: 'futures', label: 'Futures', isActive: currentPage === 'futures' },
+        { id: 'hedge_trade', label: 'Hedging Trading', isActive: currentPage === 'hedge_trade' },
+        { id: 'signals_analytics_center', label: 'Signals Center', isActive: currentPage === 'signals_analytics_center' },
+        { id: 'altcoin_position_management', label: 'Position Management', badge: '3', isActive: currentPage === 'altcoin_position_management' },
+        { id: 'new_token_sniping', label: 'Token Sniping', isActive: currentPage === 'new_token_sniping' },
+        { id: 'signals_backtesting', label: 'Signals Backtesting', isActive: currentPage === 'signals_backtesting' },
+        { id: 'strategy_center', label: 'Strategy Center', isActive: currentPage === 'strategy_center'},
+        { id: 'profit_loss_analysis', label: 'P&L Analytics', isActive: currentPage === 'profit_loss_analysis' },
     ], [currentPage]);
 
     return (
@@ -303,11 +303,11 @@ const MobileNavigationMenu: React.FC<{
             >
                 {/** header */}
                 <div className='flex items-center justify-between p-4 border-b border-gray-200'>
-                    <p className='text-lg font-semibold text-gray-900'>导航设置</p>
+                    <p className='text-lg font-semibold text-gray-900'>Navigation Settings</p>
                     <button
                     onClick={onClose}
                     className='p-2 hover:bg-gray-100 rounded-lg transition-colors'
-                    aria-label="关闭"
+                    aria-label="close"
                     >
                         <ChevronDown className='w-5 h-5 text-gray-500 rotate-45' />
                     </button>
@@ -317,19 +317,19 @@ const MobileNavigationMenu: React.FC<{
                     {/** page navigation */}
                     <div>
                         <div className='flex items-center gap-2 mb-3'>
-                            <span className='text-sm font-medium text-gray-900'>页面导航</span>
+                            <span className='text-sm font-medium text-gray-900'>Navigation</span>
                         </div>
                         <div className='grid grid-cols-2 gap-2'>
                             {[
-                                { id: 'spot_trading', label: '现货交易' },
-                                { id: 'contract_trading', label: '合约交易' },
-                                { id: 'hedge_trade', label: '对冲交易' },
-                                { id: 'signals_analysis_center', label: '信号分析中心' },
-                                { id: 'altcoin_position_management', label: '持仓管理' },
-                                { id: 'new_token_sniping', label: '新币狙击' },
-                                { id: 'signals_backtesting', label: '信号回测' },
-                                { id: 'strategies_center', label: '策略中心'},
-                                { id: 'profit_loss_analysis', label: '盈亏分析' },
+                                { id: 'spot', label: 'Spot' },
+                                { id: 'futures', label: 'Futures' },
+                                { id: 'hedge_trade', label: 'Hedging Trading' },
+                                { id: 'signals_analytics_center', label: 'Signals Center' },
+                                { id: 'altcoin_position_management', label: 'Position Management' },
+                                { id: 'new_token_sniping', label: 'Token Sniping' },
+                                { id: 'signals_backtesting', label: 'Signals Backtesting' },
+                                { id: 'strategy_center', label: 'Strategy Center'},
+                                { id: 'profit_loss_analysis', label: 'P&L Analytics' },
                             ].map((item) => (
                                 <button
                                 key={item.id}
@@ -355,7 +355,7 @@ const MobileNavigationMenu: React.FC<{
                     className='flex items-center gap-2 mb-3'
                     >
                         <Clock className='w-4 h-4 text-green-400'/>
-                        <span className='text-sm font-medium text-gray-900'>时区设置</span>
+                        <span className='text-sm font-medium text-gray-900'>Timezone Settings</span>
                     </div>
                     <div className='text-xs text-gray-500 mb-2'>{currentConfig?.country} - {currentConfig?.label}</div>
                     <div className='text-lg font-mono text-gray-900 mb-3'>{currentTime}</div>
@@ -386,7 +386,7 @@ const MobileNavigationMenu: React.FC<{
                 <div>
                     <div className='flex items-center gap-2 mb-3'>
                         <TrendingUp className='w-4 h-4 text-blue-400'/>
-                        <span className='text-sm font-medium text-gray-900'>交易所设置</span>
+                        <span className='text-sm font-medium text-gray-900'>Exchanges Settings</span>
                     </div>
                     <div className='space-y-2 max-h-40 overflow-y-auto'>
                         {exchanges.map((exchange) => (
@@ -405,7 +405,7 @@ const MobileNavigationMenu: React.FC<{
                                     {exchange.isActive && <div className='w-2 h-2 bg-green-400 rounded-full'></div>}
                                 </div>
                                 <div className='text-xs text-gray-500'>
-                                    可用: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
+                                    Avaliable: ${exchange.balance.available.toFixed(2)} {exchange.balance.currency}
                                 </div>
                             </button>
                         ))}
@@ -449,7 +449,7 @@ const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
                     <button 
                     onClick={() => setIsMobileNavigationMenuOpen(true)}
                     className='p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors '
-                    aria-label="导航设置"
+                    aria-label="navigation settings"
                     >
                         <Settings className='w-5 h-5 text-gray-700'/>
                     </button>
@@ -477,7 +477,7 @@ const TradeCenterNavigation: React.FC<TradeCenterNavigationProps> = ({
         >
             <div className="flex items-center justify-between h-full max-w-7xl mx-auto">
                 {/* left: page navigation */}
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                     <PageNavigation currentPage={currentPage} onPageChange={onPageChange} />
                 </div>
 
