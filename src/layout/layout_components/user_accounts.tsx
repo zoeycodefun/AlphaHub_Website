@@ -455,7 +455,154 @@ const UserAccounts: React.FC<{
             fetchDexAccounts();
         }
     }, [openAccountWindow, currentUser, fetchCexAccounts, fetchDexAccounts]);
-    // 
+    // dependent array: restart when openAccountWindow or currentUser changes, to ensure data is up to date when user open the account management window
+
+    // close modal handler: clear form status and errors
+    const handleCloseModal = useCallback(() => {
+        clearErrors();
+        closeAccountWindow();
+    }, [clearErrors, closeAccountWindow]);
+    // CEX account connection test handler
+    const handleTestCexConnection = useCallback(async (accountId: number) => {
+        // call the method of store, and the store will put id into testingConnectionIds
+        const result = await testCexAccountConnection(accountId);
+        // test result will be written in local testResults for display
+        setTestResults((prev) => ({
+            ...prev,
+            [accountId]: {
+                success: result.success,
+                message: result.message
+                ? `Latency: ${(result as any).latencyMs ?? '-'}ms` // latency data
+                : ((result as any).errorMessage ?? 'Connection failed'),
+            },
+        }));
+        // clear test result after 5 seconds
+        setTimeout(() => {
+            setTestResults((prev) => {
+                const next = {...prev};
+                delete next[accountId];
+                return next;
+            });
+        }, 5000)
+    }, [testDexAccountConnection]);
+    // DEX account connection test handler
+    const handleTestDexConnection = useCallback(async (accountId: number) => {
+        const result = await testDexAccountConnection(accountId);
+        setTestResults((prev) => ({
+            ...prev,
+            [accountId]: {
+                success: result.success,
+                message: result.success
+                ? 'Connected Successfully'
+                : (result.errorMessage ?? 'Connection failed'),
+            },
+        }));
+        // clear test result after 5 seconds
+        setTimeout(() => {
+            setTestResults((prev) => {
+                const next = {...prev};
+                delete next[accountId];
+                return next;
+            });
+        }, 5000)
+    }, [testDexAccountConnection]);
+    // performance optimization: when the modal is closed, do not render any DOM
+    if (!openAccountWindow) return null;
+    
+    // main render
+    return (
+        <>
+        {/** main accounts management modal */}
+        <div className='fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50'>
+            {/** modal main content */}
+            <div className='bg-white w-full h-full sm:w-[450px] flex flex-col'>
+                {/** header */}
+                <div className='flex items-center justify-between px-5 py-4 border-b norder-gray-100 flex-shrink-0'>
+                    <span className='text-base text-gray-900'>
+                        Account Management
+                    </span>
+                    {/** close button */}
+                    <button
+                    onClick={handleCloseModal}
+                    className='p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors'
+                    aria-label='Close account management panel'
+                    >
+                        <X className='w-5 h-5' />
+                    </button>
+                </div>
+                {/** content can be rolled */}
+                <div className='flex-1 overflow-y-auto px-5 py-3'>
+                    {/** situation 1: user do not login, inform user to login or register */}
+                    {!currentUser ? (
+                        <PlatformAccountLoginRegisterRequired
+                        onBind={() => {
+                            // ❌登陆跳转todo(邮箱手机号等)
+                            console.log('open auth modal')
+                        }}
+                        />
+                    ) : (
+                        // situation 2: user has logined, show complete accounts management panel
+                        <>
+                        {/** platform user information card */}
+                        <PlatformUserInfo
+                        user={currentUser}
+                        onEdit={() => {
+                            // ❌ 打开平台账户编辑弹窗
+                            console.log('edit platform user');
+                        }}
+                        />
+                        {/** ================CEX accounts content=============== */}
+                        <section>
+                            {/** title line: left(title+ammount+refresh button); right(add button) */}
+                            <div className='flex items-center justify-between mb-3'>
+                                {/** left */}
+                                <div className='flex items-center gap-2'>
+                                    <span className='text-sm text-gray-800'>
+                                        CEX Accounts
+                                    </span>
+                                    <span className='px-2 py-1 text-xs bg-gray-50 text-gray-700 rounded-full'>
+                                        {cexAccounts.length}
+                                    </span>
+                                    <button 
+                                    onClick={fetchCexAccounts}
+                                    disabled={isLoadingCex}
+                                    className='text-gray-500 hover:text-gray-700 disabled:opacity-40 transition-colors'
+                                    aria-label='Refresh CEX accounts'
+                                    >
+                                        <RefreshCw className={`w-3 h-3 ${isLoadingCex ? 'animate-spin' : ''}`} />
+                                    </button>
+                                </div>
+                                {/** right: add account button */}
+                                <button
+                                onClick={() => setModal('add-cex')}
+                                disabled={isSubmitting}
+                                className='flex items-center gap-1 px-3 py-2 text-xs
+                                bg-blue-50 text-white rounded-lg hover:bg-blue-500
+                                transition-colors disabled:opacity-50
+                                '
+                                >
+                                    <Plus className='w-3 h-3' />
+                                    Add CEX
+                                </button>
+                            </div>
+                            {/** CEX operations error information */}
+                            {cexError && (
+                                <div className='mb-3 px-3 py-2 bg-red-50 border border-red-100 rounded-lg text-xs text-red-700'>
+                                    {cexError}
+                                </div>
+                            )}
+                            {/** render CEX accounts list(three status: loading, enpty, show data list) */}
+                            {isLoadingCex ? (
+                                
+                            )}
+                        </section>
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+        </>
+    )
 }
 
 
