@@ -31,6 +31,7 @@ import {
 } from '../../services/accounts_management_api.service'
 import CexAccountForm from './user_accounts_connections/CEX/cex_account_form';
 import DexAccountForm from './user_accounts_connections/DEX/dex_accounts_form';
+import { userAuthStore } from '../../global_state_store/auth_global_state_store';
 // type definitions
 // platform user information
 interface PlatformUser {
@@ -539,7 +540,8 @@ const UserAccounts: React.FC<{
                     {!currentUser ? (
                         <PlatformAccountLoginRegisterRequired
                         onBind={() => {
-                            // ❌登陆跳转todo(邮箱手机号等)
+                            // login 
+                            userAuthStore.getState().openAuthModal('login');
                             console.log('open auth modal')
                         }}
                         />
