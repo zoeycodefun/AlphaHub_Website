@@ -1,4 +1,6 @@
-import React, { memo, useState, useCallback} from 'react';
+import React, { memo, useState, useCallback, useEffect} from 'react';
+import { userAuthStore } from '../global_state_store/auth_global_state_store';
+import AuthModal from './layout_components/auth_modal';
 import { Outlet, Link, useLocation} from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Navigation from './layout_components/navigation';
@@ -8,6 +10,7 @@ import SearchBar from './layout_components/search_bar';
 import UserAccounts from './layout_components/user_accounts';
 
 
+
 // layout: including top bar (system name, market selector, navigation, language switcher, search, user accounts) and content area below
 
 
@@ -15,6 +18,10 @@ const Layout: React.FC = memo(() => {
   const [isUserAccountsWindowOpen, setIsUserAccountsWindowOpen] = useState<boolean>(false);
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState<boolean>(false);
   const currentLocation = useLocation();
+  const { currentUser, isAuthenticated, logout, initAuth } = userAuthStore();
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
 
   const handleUserAccountsToggle = useCallback(() => {
@@ -98,17 +105,44 @@ const Layout: React.FC = memo(() => {
             <div className='flex items-center space-x-3 lg:space-x-5'>
               <LanguageSwitcher/>
               <SearchBar/>
-              <button
-              onClick={handleUserAccountsToggle}
-              className='flex items-center px-2 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200
-              transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:ring-offset-2'
-              aria-label="open users accounts menu"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                <span className='hidden sm:inline '>Accounts</span>
-              </button>
+              {isAuthenticated && currentUser ? (
+                // logged-in: show nickname + logout button
+                <>
+                  <button
+                  onClick={handleUserAccountsToggle}
+                  className='flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200
+                  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-100'
+                  aria-label="open account management"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span className='hidden sm:inline text-xs font-medium'>
+                      {currentUser.nickname || currentUser.username}
+                    </span>
+                  </button>
+                  <button
+                  onClick={logout}
+                  className='hidden sm:inline text-xs text-gray-400 hover:text-red-500 transition-colors px-2 py-1 rounded'
+                  aria-label="logout"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                // not logged in: show accounts button
+                <button
+                onClick={handleUserAccountsToggle}
+                className='flex items-center px-2 py-2 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200
+                transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:ring-offset-2'
+                aria-label="open users accounts menu"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className='hidden sm:inline'>Accounts</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -180,7 +214,11 @@ const Layout: React.FC = memo(() => {
       {/** user accounts window */}
       <UserAccounts
       openAccountWindow={isUserAccountsWindowOpen}
-      closeAccountWindow={() => setIsUserAccountsWindowOpen(false)}/>
+      closeAccountWindow={() => setIsUserAccountsWindowOpen(false)}
+      currentUser={currentUser ?? undefined}
+      />
+      {/** auth modal (login/register), z-[70] sits above all other panels */}
+      <AuthModal />
     </div>
   );
 });

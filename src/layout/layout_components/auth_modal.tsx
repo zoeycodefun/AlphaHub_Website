@@ -11,7 +11,7 @@
  * show password strength indicator real-time when user input password in register form
  * show error in the form of banner 
  */
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, Loader, CheckCircle } from 'lucide-react';
 import { userAuthStore } from '../../global_state_store/auth_global_state_store';
 // password strength check sub component

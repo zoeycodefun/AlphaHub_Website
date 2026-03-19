@@ -27,26 +27,13 @@ import {
 import { useAccountStore } from '../../global_state_store/accounts_management_global_state_store';
 import {
     type CexAccountResponse,
-    type DexAccountResponse
+    type DexAccountResponse,
+    // AuthUser is the real user shape returned from backend - reuse instead of duplicating
 } from '../../services/accounts_management_api.service'
+import { type AuthUser } from '../../services/auth_api.service';
 import CexAccountForm from './user_accounts_connections/CEX/cex_account_form';
 import DexAccountForm from './user_accounts_connections/DEX/dex_accounts_form';
 import { userAuthStore } from '../../global_state_store/auth_global_state_store';
-// type definitions
-// platform user information
-interface PlatformUser {
-    id:  string;
-    username: string;
-    email?: string;
-    phone?: string;
-    nickname?: string;
-    avatar?: string;
-    role: string;
-    enabled: boolean;
-    emailVerified: boolean;
-    phoneVerified: boolean;
-    lastLoginAt?: string;
-}
 // current opened window type: add CEX / add DEX
 type ModalType = 'add-cex' | 'add-dex' | null;
 
@@ -59,7 +46,7 @@ type ConnectionTestResult = {
 
 // sub component: platform account information display 
 const PlatformUserInfo: React.FC<{
-    user: PlatformUser;
+    user: AuthUser;
     onEdit: () => void;
 }> = ({ user, onEdit }) => {
     return (
@@ -110,9 +97,6 @@ const PlatformUserInfo: React.FC<{
                             <span className='flex items-center gap-1'>
                                 <Mail className='w-3 h-3'/>
                                 {user.email}
-                                {user.emailVerified && (
-                                    <CheckCircle className='w-3 h-3 text-green-600'/>
-                                )}
                             </span>
                         )}
                         {user.phone && (
@@ -429,7 +413,7 @@ const AddAccountModal: React.FC<{
 const UserAccounts: React.FC<{
     openAccountWindow: boolean;
     closeAccountWindow: () => void;
-    currentUser?: PlatformUser;
+    currentUser?: AuthUser;
 }> = ({ openAccountWindow, closeAccountWindow, currentUser }) => {
     // unpack all states from Zustand store
     const {
@@ -539,11 +523,7 @@ const UserAccounts: React.FC<{
                     {/** situation 1: user do not login, inform user to login or register */}
                     {!currentUser ? (
                         <PlatformAccountLoginRegisterRequired
-                        onBind={() => {
-                            // login 
-                            userAuthStore.getState().openAuthModal('login');
-                            console.log('open auth modal')
-                        }}
+                        onBind={() => userAuthStore.getState().openAuthModal('login')}
                         />
                     ) : (
                         // situation 2: user has logined, show complete accounts management panel

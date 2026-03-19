@@ -39,16 +39,19 @@ interface AccountState {
     updateDexAccount: (id: number, payload: UpdateDexAccountPayload) => Promise<void>;
     deleteCexAccount: (id: number) => Promise<void>;
     deleteDexAccount: (id: number) => Promise<void>;
-    testCexAccountConnection: (id: number) => Promise<{ success: boolean; message: string }>;
-    testDexAccountConnection: (id: number) => Promise<{
-        errorMessage: string; success: boolean; message: string 
-}>;
+    testCexAccountConnection: (id: number) => Promise<{ success: boolean; latencyMs?: number; errorMessage?: string }>;
+    testDexAccountConnection: (id: number) => Promise<{ success: boolean; errorMessage?: string }>;
     clearErrors: () => void;
 }
 // util function to handle API errors and extract error messages
 // get readable error message from axios error response, fallback to generic message if not available
-function extractErrorMessage(error: any, fallback: string): string {
-    return error?.response?.data?.message ?? fallback;
+function extractErrorMessage(error: unknown, fallback: string): string {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const err = error as any;
+    if (err?.response?.data?.message && typeof err.response.data.message === 'string') {
+        return err.response.data.message;
+    }
+    return fallback;
 }
 // create the zustand store
 export const useAccountStore = create<AccountState>((set, get) => ({
