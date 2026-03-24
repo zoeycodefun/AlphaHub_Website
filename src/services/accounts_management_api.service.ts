@@ -130,7 +130,7 @@ class AccountApiService {
          * return http://localhost:3000 in local development
          */
         this.http = axios.create({
-            baseURL: (import.meta as any).env?.VITE_API_BASE_URL ?? 'http://localhost:3000',
+            baseURL: (import.meta as any).env?.VITE_API_BASE_URL ?? 'http://localhost:3000/api',
             timeout: 15_000, // 15 seconds timeout for all requests
             headers: {
                 'Content-Type': 'application/json',
@@ -200,7 +200,7 @@ class AccountApiService {
     async testCexAccountConnection(
         id: number
     ): Promise<{ success: boolean; latencyMs?: number; errorMessage?: string }> {
-        const response = await this.http.post(`/cex-accounts/${id}/connection-test`);
+        const response = await this.http.post(`/cex-accounts/${id}/test-connection`);
         return response.data.data ?? response.data;
     }
     
@@ -244,7 +244,7 @@ class AccountApiService {
     async testDexAccountConnection(
         id: number
     ): Promise<{ success: boolean; errorMessage: string }> {
-        const response = await this.http.post(`/dex-accounts/${id}/connection-test`);
+        const response = await this.http.post(`/dex-accounts/${id}/test-connection`);
         return response.data.data ?? response.data;
     }
 }
