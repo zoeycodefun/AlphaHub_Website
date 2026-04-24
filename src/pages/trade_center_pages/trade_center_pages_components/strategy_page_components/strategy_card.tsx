@@ -8,7 +8,7 @@
  *  - 操作按钮（启动/暂停/停止）
  */
 import React, { memo, useCallback } from 'react';
-import type { StrategyRecord, StrategyStatus } from '../../../type/alpha_module_types';
+import type { StrategyRecord, StrategyStatus } from '../../type/alpha_module_types';
 
 // =========================================================================
 // 常量

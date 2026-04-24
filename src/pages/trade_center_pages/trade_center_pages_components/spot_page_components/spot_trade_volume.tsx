@@ -9,11 +9,11 @@
  *
  * 布局位于 K 线图下方，提供市场微观结构视图。
  */
-import React, { memo, useState, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { Activity } from 'lucide-react';
 import { useTradingStore } from '../../../../global_state_store/trading_global_state_store';
 import { useTicker } from '../../../../global_state_store/market_data_store';
-import { formatPrice, formatVolume } from '../../../../hooks/use_format';
+import { formatPrice } from '../../../../hooks/use_format';
 
 // =========================================================================
 // 成交记录类型

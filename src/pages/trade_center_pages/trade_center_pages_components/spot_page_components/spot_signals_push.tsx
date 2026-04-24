@@ -21,8 +21,6 @@ import type {
     TechnicalDimensionScore,
     MacroDimensionScore,
     SentimentDimensionScore,
-    ReferencePriceLevels,
-    PositionSizeSuggestion,
 } from '../../type/spot_trading_types';
 
 // =========================================================================

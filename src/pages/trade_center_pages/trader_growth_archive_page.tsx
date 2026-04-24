@@ -17,7 +17,7 @@
  *  - 仅展示当天档案，历史可浏览/导出
  *  - 数据留存一年
  */
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback, memo, Suspense } from 'react';
 import type {
     TradeJournalEntry,
     TradeEmotion,

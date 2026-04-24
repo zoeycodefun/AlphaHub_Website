@@ -8,7 +8,7 @@
  *  - 创建 / 保存 / 取消
  */
 import React, { memo, useState, useCallback, useEffect } from 'react';
-import type { StrategyConfigRequest, ExecutionMode, StrategyMarketType } from '../../../type/alpha_module_types';
+import type { StrategyConfigRequest, ExecutionMode, StrategyMarketType } from '../../type/alpha_module_types';
 
 // =========================================================================
 // 常量
